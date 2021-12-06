@@ -1,8 +1,17 @@
 package io.github.alex.domain.entity;
 
+import javax.persistence.*;
+
+@Entity
+@Table
 public class Cliente {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "ID")
     private Integer id;
+
+    @Column(name = "NOME", length = 100)
     private String nome;
 
     public Cliente() {}
