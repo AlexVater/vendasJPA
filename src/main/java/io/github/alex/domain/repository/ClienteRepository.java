@@ -8,17 +8,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
 public class ClienteRepository {
-
-    private static String SELECT_ALL = "SELECT * FROM CLIENTE";
-    private static String UPDATE = "UPDATE CLIENTE SET NOME = ? WHERE ID = ?";
-    private static String DELETE = "DELETE FROM CLIENTE WHERE ID = ?";
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private EntityManager entityManager;
@@ -29,32 +23,39 @@ public class ClienteRepository {
         return cliente;
     }
 
+    @Transactional
     public Cliente update(Cliente cliente){
-        jdbcTemplate.update(UPDATE, cliente.getNome(), cliente.getId());
+        entityManager.merge(cliente);
         return cliente;
     }
 
+    @Transactional
     public void delete(Cliente cliente){
-        Integer id = cliente.getId();
-        jdbcTemplate.update(DELETE, id);
+        if (!entityManager.contains(cliente)){
+            cliente = entityManager.merge(cliente);
+        }
+        entityManager.remove(cliente);
     }
 
+    @Transactional
+    public void delete(Integer id){
+        Cliente cliente = entityManager.find(Cliente.class, id);
+        delete(cliente);
+    }
+
+    @Transactional(readOnly = true)
     public List<Cliente> findByName(String nome){
-        return jdbcTemplate.query(
-                SELECT_ALL.concat(" WHERE NOME LIKE ? "),
-                new Object[]{"%" + nome + "%"},
-                getClienteRowMapper());
+        String jpql = " SELECT c FROM Cliente c WHERE c.nome LIKE :nome";
+        TypedQuery<Cliente> query = entityManager.createQuery(jpql, Cliente.class);
+        query.setParameter("nome", "%" + nome + "%");
+        return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
     public List<Cliente> getAll(){
-        return jdbcTemplate.query(SELECT_ALL, getClienteRowMapper());
+        return entityManager
+                .createQuery("FROM Cliente", Cliente.class)
+                .getResultList();
     }
 
-    private RowMapper<Cliente> getClienteRowMapper() {
-        return (resultSet, i) -> {
-            Integer id = resultSet.getInt("ID");
-            String nome = resultSet.getString("NOME");
-            return new Cliente(id, nome);
-        };
-    }
 }
