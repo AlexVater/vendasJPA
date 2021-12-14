@@ -20,30 +20,11 @@ public class VendasApplication {
             clientes.save(new Cliente("Alexsander"));
             clientes.save(new Cliente("Bruno"));
 //
-            List<Cliente> todosClientes = clientes.findAll();
-            todosClientes.forEach(System.out::println);
-//
-            System.out.println("Atualizando Clientes");
-            todosClientes.forEach(cliente -> {
-                cliente.setNome(cliente.getNome() + "-atualizado");
-                clientes.save(cliente);
-            });
-//
-            todosClientes = clientes.findAll();
-            todosClientes.forEach(System.out::println);
+            boolean exists = clientes.existsByNome("Alexsander");
+            System.out.println(exists);
 
-            System.out.println("Buscando Clientes");
-            clientes.findByNomeLike("%san%").forEach(System.out::println);
-
-            System.out.println("Deletando Clientes");
-            clientes.findAll().forEach(clientes::delete);
-
-            todosClientes = clientes.findAll();
-            if (todosClientes.isEmpty()){
-                System.out.println("Nenhum Cliente Encontrado");
-            }else {
-                todosClientes.forEach(System.out::println);
-            }
+            List<Cliente> result = clientes.findName("Alex");
+            result.forEach(System.out::println);
         };
     }
 
