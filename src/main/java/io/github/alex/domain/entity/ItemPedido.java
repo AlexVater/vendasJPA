@@ -1,11 +1,26 @@
 package io.github.alex.domain.entity;
 
+import javax.annotation.Generated;
+import javax.persistence.*;
+
+@Entity
+@Table(name = "item_pedido")
 public class ItemPedido {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    private Integer quantidade;
+
+    @ManyToOne
+    @JoinColumn(name = "pedido_id")
     private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "produto_id")
     private Pedido pedido;
+
+    @Column(name = "quantidade")
+    private Integer quantidade;
 
     public Integer getId() {
         return id;
